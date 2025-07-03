@@ -135,8 +135,9 @@ function buildCommentTree(array $flatComments, $parentId = null) {
                     return $b['timestamp'] <=> $a['timestamp'];
                 });
                 $comment['replies'] = $children;
-                $comment['reply_count'] = count($children); 
-                $comment['reply_count'] = 0;
+                $comment['reply_count'] = count($children); // This line is now correct and not overwritten
+            } else {
+                $comment['reply_count'] = 0; // Initialize reply_count to 0 if no children
             }
             $branch[] = $comment;
         }

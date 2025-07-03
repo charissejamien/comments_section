@@ -102,10 +102,11 @@ body {
 }
 
 .comment-box.is-reply-box {
-    background-color: #e9ebee;
     border-left: 2px solid #ddd;
     padding-left: 13px;
     margin-top: 10px;
+    border: none;
+    box-shadow: none;
 }
 
 

@@ -1,38 +1,11 @@
 [
     {
-        "id": "685d056845354",
+        "id": "686600febbad6",
         "username": "Guest",
-        "text": "awdwada",
-        "timestamp": 1750926696,
-        "likes": 1,
-        "dislikes": 1,
+        "text": "first comment",
+        "timestamp": 1751515390,
+        "likes": 0,
+        "dislikes": 0,
         "parent_id": null
-    },
-    {
-        "id": "685d056a67ef6",
-        "username": "Guest",
-        "text": "awdadawd",
-        "timestamp": 1750926698,
-        "likes": 0,
-        "dislikes": 0,
-        "parent_id": "685d056845354"
-    },
-    {
-        "id": "685d056f978f4",
-        "username": "Guest",
-        "text": "dawdaadwa",
-        "timestamp": 1750926703,
-        "likes": 0,
-        "dislikes": 0,
-        "parent_id": "685d056845354"
-    },
-    {
-        "id": "685d0574dfbb7",
-        "username": "Guest",
-        "text": "grdgdrg",
-        "timestamp": 1750926708,
-        "likes": 0,
-        "dislikes": 0,
-        "parent_id": "685d056f978f4"
     }
 ]
