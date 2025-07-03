@@ -7,5 +7,23 @@
         "likes": 0,
         "dislikes": 0,
         "parent_id": null
+    },
+    {
+        "id": "68660304f2131",
+        "username": "Guest",
+        "text": "awdawdaw",
+        "timestamp": 1751515908,
+        "likes": 0,
+        "dislikes": 0,
+        "parent_id": null
+    },
+    {
+        "id": "68660306c90ef",
+        "username": "Guest",
+        "text": "awdwad",
+        "timestamp": 1751515910,
+        "likes": 0,
+        "dislikes": 0,
+        "parent_id": "68660304f2131"
     }
 ]

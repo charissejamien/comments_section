@@ -1,20 +1,16 @@
 <?php
 session_start();
 
+// Path to the file storing comments.
 $commentsFile = 'comments.txt';
 
-
-/**
- * Loads comments from a file. In a real app, this would be from a database.
- * @return array An array of comments.
- */
+// Loads comments from the comments file, ensuring necessary keys are present.
 function loadComments() {
     global $commentsFile;
     if (file_exists($commentsFile)) {
         $json = file_get_contents($commentsFile);
         $comments = json_decode($json, true) ?: [];
 
-        // Ensure every comment has necessary keys, defaulting to null/0
         foreach ($comments as &$comment) {
             if (!isset($comment['parent_id'])) {
                 $comment['parent_id'] = null;
@@ -32,40 +28,29 @@ function loadComments() {
     return [];
 }
 
-/**
- * Saves comments to a file. In a real app, this would be to a database.
- * @param array $comments The array of comments to save.
- */
+// Saves the array of comments to the comments file.
 function saveComments(array $comments) {
     global $commentsFile;
     file_put_contents($commentsFile, json_encode($comments, JSON_PRETTY_PRINT));
 }
 
-/**
- * Adds a new comment or reply.
- * @param string $username The name of the commenter.
- * @param string $commentText The text of the comment.
- * @param string|null $parentId The ID of the parent comment if this is a reply.
- */
+// Adds a new comment or reply, sanitizing input.
 function addComment($username, $commentText, $parentId = null) {
     $comments = loadComments();
     $newComment = [
-        'id' => uniqid(), // Unique ID for the comment/reply
+        'id' => uniqid(),
         'username' => htmlspecialchars($username),
         'text' => htmlspecialchars($commentText),
         'timestamp' => time(),
         'likes' => 0,
         'dislikes' => 0,
-        'parent_id' => $parentId // Store the parent ID (null for top-level)
+        'parent_id' => $parentId
     ];
     $comments[] = $newComment;
     saveComments($comments);
 }
 
-/**
- * Increments the like count for a comment.
- * @param string $commentId The ID of the comment.
- */
+// Increments the like count for a specific comment.
 function likeComment($commentId) {
     $comments = loadComments();
     foreach ($comments as &$comment) {
@@ -77,10 +62,7 @@ function likeComment($commentId) {
     saveComments($comments);
 }
 
-/**
- * Increments the dislike count for a comment.
- * @param string $commentId The ID of the comment.
- */
+// Increments the dislike count for a specific comment.
 function dislikeComment($commentId) {
     $comments = loadComments();
     foreach ($comments as &$comment) {
@@ -92,14 +74,9 @@ function dislikeComment($commentId) {
     saveComments($comments);
 }
 
-/**
- * Helper function to format time into "X days ago", "Y hours ago", etc.
- * @param int $time The Unix timestamp.
- * @return string The human-readable time difference.
- */
-function humanTiming ($time)
-{
-    $time = time() - $time; // to get the time since that moment
+// Converts a Unix timestamp into a human-readable "time ago" string.
+function humanTiming ($time) {
+    $time = time() - $time;
     $time = ($time < 1) ? 1 : $time;
     $tokens = array (
         31536000 => 'year',
@@ -118,13 +95,7 @@ function humanTiming ($time)
     }
 }
 
-/**
- * Builds a hierarchical tree of comments from a flat list.
- * Adds a 'reply_count' for direct children.
- * @param array $flatComments The flat array of all comments.
- * @param string|null $parentId The parent ID to filter by (null for top-level comments).
- * @return array The hierarchical comment tree.
- */
+// Builds a hierarchical tree of comments from a flat list, including replies.
 function buildCommentTree(array $flatComments, $parentId = null) {
     $branch = [];
     foreach ($flatComments as $comment) {
@@ -135,9 +106,9 @@ function buildCommentTree(array $flatComments, $parentId = null) {
                     return $b['timestamp'] <=> $a['timestamp'];
                 });
                 $comment['replies'] = $children;
-                $comment['reply_count'] = count($children); // This line is now correct and not overwritten
+                $comment['reply_count'] = count($children);
             } else {
-                $comment['reply_count'] = 0; // Initialize reply_count to 0 if no children
+                $comment['reply_count'] = 0;
             }
             $branch[] = $comment;
         }
@@ -145,13 +116,7 @@ function buildCommentTree(array $flatComments, $parentId = null) {
     return $branch;
 }
 
-/**
- * Renders a single comment and prepares for its replies.
- * This function is now responsible for a single comment's HTML.
- * Replies will be rendered by the calling loop or recursive call.
- * @param array $comment The comment data.
- * @param int $level The nesting level.
- */
+// Renders the HTML for a single comment and prepares for its replies.
 function renderSingleComment($comment, $level = 0) {
     $margin_left = min($level * 40, 160);
     ?>
@@ -189,7 +154,6 @@ function renderSingleComment($comment, $level = 0) {
         </div>
 
         <?php
-
         if ($comment['reply_count'] > 0) {
             $replies_hidden_class = ($comment['reply_count'] > 3 && $level === 0) ? 'hidden' : '';
             ?>
@@ -214,10 +178,10 @@ function renderSingleComment($comment, $level = 0) {
     <?php
 }
 
-
-
+// Initializes error message variable.
 $error = null;
 
+// Handles submission of new top-level comments.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
     $username = "Guest";
     $commentText = trim($_POST['comment_text']);
@@ -231,6 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
     }
 }
 
+// Handles submission of replies to comments.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_reply'])) {
     $username = "Guest";
     $commentText = trim($_POST['comment_text']);
@@ -245,7 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_reply'])) {
     }
 }
 
-
+// Handles liking or disliking comments.
 if (isset($_GET['action']) && isset($_GET['comment_id'])) {
     $commentId = $_GET['comment_id'];
     if ($_GET['action'] === 'like') {
@@ -257,11 +222,13 @@ if (isset($_GET['action']) && isset($_GET['comment_id'])) {
     exit();
 }
 
-
+// Loads all comments.
 $allFlatComments = loadComments();
 
+// Builds the threaded comment structure.
 $threadedComments = buildCommentTree($allFlatComments, null);
 
+// Determines the sorting order for comments.
 $sort = $_GET['sort'] ?? 'newest';
 if ($sort === 'oldest') {
     usort($threadedComments, function($a, $b) {
